@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      TZ: "Europe/Kiev"
+      ES_JAVA_OPTS: "-Xms1024m -Xms1024m"
+    volumes:
+      - "./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+      - "esdata:/usr/share/elasticsearch/data"
+    restart:
+      unless-stopped
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.5.0
+    volumes:
+      - "./logstash/config:/usr/share/logstash/config"
+      - "./logstash/patterns:/usr/share/logstash/patterns"
+      - "./logstash/pipeline:/usr/share/logstash/pipeline"
+      - "./logstash/geoip_db:/usr/share/logstash/geoip_db"
+      - "./data:/data/logs"
+    ports:
+      - "5145:5145/udp"
+    command: "bin/logstash --config.reload.automatic"
+    environment:
+      TZ: "Europe/Kiev"
+      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+    depends_on:
+      - elasticsearch
+    restart:
+      unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.5.0
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      TZ: "Europe/Kiev"
+    depends_on:
+      - elasticsearch
+    restart:
+      unless-stopped
+
+# ATTENTION! data will store at /var/lib/docker/volumes/<volume_name> by default
+#            docker startup parameter --data-root=<dir> handle this (or option in daemon.json)
+# docker volume ls
+# docker volume inspect <project_folder_name>_esdata
+# docker volume rm <project_folder_name>_esdata
+volumes:
+  esdata:
+    driver: local
+

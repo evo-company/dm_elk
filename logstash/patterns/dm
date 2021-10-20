@@ -1,0 +1,10 @@
+TS (\d{4}-\d{2}-\d{2}\s\d{2}\:\d{2}\:\d{2}\:\d{3})
+TSLINE \[%{TS:ts}\s\]
+THREAD (\d+)
+THREADLINE \[TID[\s]+%{THREAD:thread}\]
+LVL (\w+)
+LVLLINE \[%{LVL:lvl}\s+\]
+ONLINE_STATE (\w+)?
+ONLINELINE \[%{ONLINE_STATE:online_state}\]
+OPERATION [^\]]+
+OPERATIONLINE \[%{OPERATION:operation}\]

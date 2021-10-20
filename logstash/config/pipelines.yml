@@ -1,0 +1,2 @@
+- pipeline.id: logstash-dm
+  path.config: "pipeline/dm.conf"
